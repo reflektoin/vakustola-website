@@ -31,9 +31,18 @@ $statement->bindValue(":in_toim_nimi", $nimi);
 
 }
 elseif (strlen($y_tunnus) > 0){
+//jos merkkijonosta loytyy valilyonti, niin oletetaan etta kyseessa on lista vaihtoehtja
+if(strpos($y_tunnus, ' ') !== false){
+  $palat = explode(" ", $y_tunnus);
+  $clause = implode(',', array_fill(0, count($palat), '?'));
+$qmarks = str_repeat('?,', count($palat) - 1) . '?';
+$statement = $pdo->prepare("SELECT h.lasku_id, h.tili, h.tiliointisumma, h.tositepvm, h.toimittaja_y_tunnus, h.toimittaja_nimi, h.hankintayksikko_tunnus, h.hankintayksikko, h.ylaorganisaatio_tunnus, h.ylaorganisaatio, h.sektori, h.tuote_palveluryhma, h.hankintakategoria FROM hankinta h WHERE toimittaja_y_tunnus in ($qmarks)");
+$statement->execute($palat);
+}
+else {
 $statement = $pdo->prepare("SELECT h.lasku_id, h.tili, h.tiliointisumma, h.tositepvm, h.toimittaja_y_tunnus, h.toimittaja_nimi, h.hankintayksikko_tunnus, h.hankintayksikko, h.ylaorganisaatio_tunnus, h.ylaorganisaatio, h.sektori, h.tuote_palveluryhma, h.hankintakategoria FROM hankinta h WHERE toimittaja_y_tunnus =:in_y_toim_tunnus");
 $statement->bindValue(":in_y_toim_tunnus", $y_tunnus);                                                                                                                                                                                       }                                                        
-
+}
 $result = $statement->execute();
 $eka = $statement->fetch(PDO::FETCH_ASSOC);
 echo '<table>
