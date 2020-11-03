@@ -21,24 +21,35 @@ tfoot {
   <title>Laskutiedot</title>
 </head>';
 echo '<body>';
+
+if(strcmp(getcwd(), "test")){
+require_once (__DIR__.'/../../../testiasetukset.php');
+}
+else{
 require_once (__DIR__.'/../../asetukset.php');
+
+}
 
 $pdo = new PDO('mysql:host='.$strHostName.';dbname='.$strDbName.';charset=latin1', $strUserName, $strPassword);
 $nimi = $_GET['name'];
 $y_tunnus = $_GET['y-tunnus'];
-
-
-if(strlen($nimi) >0){
-$statement = $pdo->prepare("SELECT * FROM hankinta WHERE toimittaja_nimi like :in_toim_nimi");
-$statement->bindValue(":in_toim_nimi", $nimi.'%');
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          if(strlen($nimi) >0){                                                                                                                                                                                                                        $statement = $pdo->prepare("SELECT * FROM hankinta WHERE toimittaja_nimi =:in_toim_nimi");
+$statement->bindValue(":in_toim_nimi", $nimi);
 
 }
 elseif (strlen($y_tunnus) > 0){
-$statement = $pdo->prepare("SELECT * FROM hankinta WHERE toimittaja_y_tunnus =:in_y_toim_tunnus");
-$statement->bindValue(":in_y_toim_tunnus", $y_tunnus);
+//jos merkkijonosta loytyy valilyonti, niin oletetaan etta kyseessa on lista vaihtoehtja
+if(strpos($y_tunnus, ' ') !== false){
+  $palat = explode(" ", $y_tunnus);
+  $clause = implode(',', array_fill(0, count($palat), '?'));
+$qmarks = str_repeat('?,', count($palat) - 1) . '?';
+$statement = $pdo->prepare("SELECT h.lasku_id, h.tili, h.tiliointisumma, h.tositepvm, h.toimittaja_y_tunnus, h.toimittaja_nimi, h.hankintayksikko_tunnus, h.hankintayksikko, h.ylaorganisaatio_tunnus, h.ylaorganisaatio, h.sektori, h.tuote_palveluryhma, h.hankintakategoria FROM hankinta h WHERE toimittaja_y_tunnus in ($qmarks)");
+$statement->execute($palat);
 }
-
-
+else {
+$statement = $pdo->prepare("SELECT h.lasku_id, h.tili, h.tiliointisumma, h.tositepvm, h.toimittaja_y_tunnus, h.toimittaja_nimi, h.hankintayksikko_tunnus, h.hankintayksikko, h.ylaorganisaatio_tunnus, h.ylaorganisaatio, h.sektori, h.tuote_palveluryhma, h.hankintakategoria FROM hankinta h WHERE toimittaja_y_tunnus =:in_y_toim_tunnus");
+$statement->bindValue(":in_y_toim_tunnus", $y_tunnus);                                                                                                                                                                                       }                                                        
+}
 $result = $statement->execute();
 $eka = $statement->fetch(PDO::FETCH_ASSOC);
 echo '<table>
@@ -57,7 +68,11 @@ if ($statement->execute()) {
 echo '<tbody>
     <tr>            ';
         foreach ($row as $key => $kentta)
-        echo '<td> '. $kentta .'</td>';
+//kun tiliointisumma-kenttä on vuorossa, niin korvataan merkkijonon piste pilkulla.
+	if(strcmp($key, 'tiliointisumma')==0){
+        echo '<td> '. str_replace(".", ",",$kentta) .'</td>';
+}else{   echo '<td> '. $kentta .'</td>';
+}
         echo '
     </tr>';
 
