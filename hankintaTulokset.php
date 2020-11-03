@@ -22,7 +22,7 @@ tfoot {
 </head>';
 echo '<body>';
 
-if(strcmp(getcwd(), "test")){
+if(strcmp(getcwd(), "test") == 0){
 require_once (__DIR__.'/../../../testiasetukset.php');
 }
 else{
