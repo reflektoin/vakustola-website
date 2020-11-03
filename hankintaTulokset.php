@@ -22,7 +22,7 @@ tfoot {
 </head>';
 echo '<body>';
 
-if(strcmp(getcwd(), "test") == 0){
+if(strcmp(basename(getcwd()), "test") == 0){
 require_once (__DIR__.'/../../../testiasetukset.php');
 }
 else{
@@ -33,8 +33,8 @@ require_once (__DIR__.'/../../asetukset.php');
 $pdo = new PDO('mysql:host='.$strHostName.';dbname='.$strDbName.';charset=latin1', $strUserName, $strPassword);
 $nimi = $_GET['name'];
 $y_tunnus = $_GET['y-tunnus'];
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          if(strlen($nimi) >0){                                                                                                                                                                                                                        $statement = $pdo->prepare("SELECT * FROM hankinta WHERE toimittaja_nimi =:in_toim_nimi");
-$statement->bindValue(":in_toim_nimi", $nimi);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          if(strlen($nimi) >0){                                                                                                                                                                                                                        $statement = $pdo->prepare("SELECT * FROM hankinta WHERE toimittaja_nimi like :in_toim_nimi");
+$statement->bindValue(":in_toim_nimi", $nimi.'%');
 
 }
 elseif (strlen($y_tunnus) > 0){
