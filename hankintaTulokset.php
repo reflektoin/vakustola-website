@@ -33,8 +33,11 @@ require_once (__DIR__.'/../../asetukset.php');
 $pdo = new PDO('mysql:host='.$strHostName.';dbname='.$strDbName.';charset=latin1', $strUserName, $strPassword);
 $nimi = $_GET['name'];
 $y_tunnus = $_GET['y-tunnus'];
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          if(strlen($nimi) >0){                                                                                                                                                                                                                        $statement = $pdo->prepare("SELECT * FROM hankinta WHERE toimittaja_nimi like :in_toim_nimi");
-$statement->bindValue(":in_toim_nimi", $nimi.'%');
+$yritys = $_GET['yritys'];
+
+if(strlen($nimi) >0){
+  $statement = $pdo->prepare("SELECT * FROM hankinta WHERE toimittaja_nimi like :in_toim_nimi");
+  $statement->bindValue(":in_toim_nimi", $nimi.'%');
 
 }
 elseif (strlen($y_tunnus) > 0){
@@ -49,6 +52,11 @@ $statement->execute($palat);
 else {
 $statement = $pdo->prepare("SELECT h.lasku_id, h.tili, h.tiliointisumma, h.tositepvm, h.toimittaja_y_tunnus, h.toimittaja_nimi, h.hankintayksikko_tunnus, h.hankintayksikko, h.ylaorganisaatio_tunnus, h.ylaorganisaatio, h.sektori, h.tuote_palveluryhma, h.hankintakategoria FROM hankinta h WHERE toimittaja_y_tunnus =:in_y_toim_tunnus");
 $statement->bindValue(":in_y_toim_tunnus", $y_tunnus);                                                                                                                                                                                       }                                                        
+}
+elseif (strlen($yritys) > 0){
+$statement = $pdo->prepare("SELECT y.toimittaja_y_tunnus, y.toimittaja_nimi, concat('<a href=\"laskukooste.php?name=',y.toimittaja_nimi, '\">linkki</a>') as 'Laskukooste' FROM yritys y WHERE y.toimittaja_nimi like :in_toim_nimi");
+$statement->bindValue(":in_toim_nimi", $yritys);
+
 }
 $result = $statement->execute();
 $eka = $statement->fetch(PDO::FETCH_ASSOC);
