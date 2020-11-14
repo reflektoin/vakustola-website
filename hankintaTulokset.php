@@ -51,7 +51,7 @@ $statement = $pdo->prepare("SELECT h.lasku_id, h.tili, h.tiliointisumma, h.tosit
 $statement->bindValue(":in_y_toim_tunnus", $y_tunnus);                                                                                                                                                                                       }                                                        
 }
 elseif (strlen($yritys) > 0){
-$statement = $pdo->prepare("SELECT * FROM yritys y WHERE y.toimittaja_nimi like :in_toim_nimi");
+$statement = $pdo->prepare("SELECT y.toimittaja_y_tunnus, y.toimittaja_nimi, concat('<a href=\"laskukooste.php?name=',y.toimittaja_nimi, '\">linkki</a>') as 'Laskukooste' FROM yritys y WHERE y.toimittaja_nimi like :in_toim_nimi");
 $statement->bindValue(":in_toim_nimi", $yritys);
 
 }
