@@ -122,7 +122,7 @@ echo '</tbody>
 
 //hankintayksikkokooste
 if(strlen($nimi) > 0){
-echo '<h3>'.utf8_decode("Laskut vuosittain ja hallinnonaloittain").'</h3>';
+echo '<h3>'.mb_convert_encoding("Laskut vuosittain ja hankintayksiköittäin", "utf8", "latin1").'</h3>';
 $statement = $pdo->prepare("select h.toimittaja_nimi, year(str_to_date(tositepvm, '%d.%m.%Y')) as 'Vuosi', h.hankintayksikko, sum(tiliointisumma ) as 'Summa' from hankinta h where h.toimittaja_nimi = :in_toim_nimi group by 1, 2, 3");
 $statement->bindValue(":in_toim_nimi", $nimi);
 
