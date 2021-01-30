@@ -1,5 +1,5 @@
 <?php
-header('Content-Type: text/html; charset=latin1');
+header('Content-Type: text/html; charset=utf8');
 echo '<html lang="fi">
 <style type="text/css">
     table,
@@ -15,7 +15,7 @@ tfoot {
 
     </style>
   <head>'.
-'<meta http-equiv=Content-Type content="text/html; charset=latin1">'
+'<meta http-equiv=Content-Type content="text/html; charset=utf8">'
 .'  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Cache-Control" content="no-cache">
   <title>Laskutiedot</title>
@@ -30,7 +30,7 @@ require_once (__DIR__.'/../../asetukset.php');
 
 }
 
-$pdo = new PDO('mysql:host='.$strHostName.';dbname='.$strDbName.';charset=latin1', $strUserName, $strPassword);
+$pdo = new PDO('mysql:host='.$strHostName.';dbname='.$strDbName.';charset=utf8', $strUserName, $strPassword);
 $nimi = $_GET['name'];
 $y_tunnus = $_GET['y-tunnus'];
 $yritys = $_GET['yritys'];

@@ -1,5 +1,5 @@
 <?php
-header('Content-Type: text/html; charset=latin1');
+header('Content-Type: text/html; charset=utf8');
 echo '<html lang="fi">
 <style type="text/css">
     table,
@@ -15,7 +15,7 @@ tfoot {
 
     </style>
   <head>'.
-'<meta http-equiv=Content-Type content="text/html; charset=latin1">'
+'<meta http-equiv=Content-Type content="text/html; charset=utf8">'
 .'  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Cache-Control" content="no-cache">
   <title>Laskutiedot</title>
@@ -65,7 +65,7 @@ echo '</table>';
 
 }
 
-$pdo = new PDO('mysql:host='.$strHostName.';dbname='.$strDbName.';charset=latin1', $strUserName, $strPassword);
+$pdo = new PDO('mysql:host='.$strHostName.';dbname='.$strDbName.';charset=utf8', $strUserName, $strPassword);
 $nimi = $_GET['name'];
 $edellinen_summa = 0;
 $nykyinen_summa = 0;
@@ -122,7 +122,7 @@ echo '</tbody>
 
 //hankintayksikkokooste
 if(strlen($nimi) > 0){
-echo '<h3>'.utf8_decode("Laskut vuosittain ja hankintayksiköittäin").'</h3>';
+echo '<h3>'.utf8_decode("Laskut vuosittain ja hallinnonaloittain").'</h3>';
 $statement = $pdo->prepare("select h.toimittaja_nimi, year(str_to_date(tositepvm, '%d.%m.%Y')) as 'Vuosi', h.hankintayksikko, sum(tiliointisumma ) as 'Summa' from hankinta h where h.toimittaja_nimi = :in_toim_nimi group by 1, 2, 3");
 $statement->bindValue(":in_toim_nimi", $nimi);
 
