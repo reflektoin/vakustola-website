@@ -54,7 +54,14 @@ $statement = $pdo->prepare("SELECT h.lasku_id, h.tili, h.tiliointisumma, h.tosit
 $statement->bindValue(":in_y_toim_tunnus", $y_tunnus);                                                                                                                                                                                       }                                                        
 }
 elseif (strlen($yritys) > 0){
-$statement = $pdo->prepare("SELECT y.toimittaja_y_tunnus, y.toimittaja_nimi, concat('<a href=\"laskukooste.php?name=',y.toimittaja_nimi, '\">linkki</a>') as 'Laskukooste' FROM yritys y WHERE y.toimittaja_nimi like :in_toim_nimi");
+$statement = $pdo->prepare(
+"SELECT 
+	y.toimittaja_y_tunnus, 
+	y.toimittaja_nimi, 
+	concat('<a href=\"laskukooste.php?name=',y.toimittaja_nimi, '\">linkki</a>') as 'Laskukooste',
+	y.toimittaja_nimi as 'PRH-tiedot'
+FROM yritys y 
+     WHERE y.toimittaja_nimi like :in_toim_nimi");
 $statement->bindValue(":in_toim_nimi", $yritys);
 
 }
@@ -75,18 +82,18 @@ if ($statement->execute()) {
 
 echo '<tbody>
     <tr>            ';
-        foreach ($row as $key => $kentta)
-//kun tiliointisumma-kenttä on vuorossa, niin korvataan merkkijonon piste pilkulla.
-	if(strcmp($key, 'tiliointisumma')==0){
-        echo '<td> '. str_replace(".", ",",$kentta) .'</td>';
-}else{   echo '<td> '. $kentta .'</td>';
-}
-        echo '
-    </tr>';
+    
+     $avain = array_keys($row);
+    $koko = sizeOf($avain);
+
+//replace for loop
+     echo '<td> '. $row[$avain[0]] .'</td> <td>'. $row[$avain[1]] .'</td> <td>'. $row[$avain[2]] .'</td><td>'.
+     '<a href=https://avoindata.prh.fi/bis/v1?totalResults=false&maxResults=10&resultsFrom=0&name='.urlencode($row[$avain[3]]).'>linkki</a>'
+     .'</td>';
+     echo '</tr>';
 
 }
 }
-
 $pdo = null; //close connection
 echo '</tbody>
 </table>
