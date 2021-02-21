@@ -135,6 +135,129 @@ $statement->bindValue(":in_toim_nimi", $nimi);
 
 hae_tulokset($statement);
 
+echo '<h3>'.mb_convert_encoding("Laskujen keskiarvo", "utf8", "latin1").'</h3>';
+$statement = $pdo->prepare("select  
+toimittaja_nimi,
+avg(summa) 'Summa' from (
+select lasku_id, 
+sum(tiliointisumma) 'summa', 
+tositepvm, 
+toimittaja_y_tunnus, 
+toimittaja_nimi, 
+hankintayksikko_tunnus, 
+hankintayksikko, 
+ylaorganisaatio_tunnus, 
+ylaorganisaatio, 
+sektori, 
+tuote_palveluryhma, 
+hankintakategoria 
+from hankinta where toimittaja_nimi = :in_toim_nimi group by lasku_id, tositepvm, 
+toimittaja_y_tunnus, 
+toimittaja_nimi, 
+hankintayksikko_tunnus, 
+hankintayksikko, 
+ylaorganisaatio_tunnus, 
+ylaorganisaatio, 
+sektori, 
+tuote_palveluryhma, 
+hankintakategoria ) X");
+$statement->bindValue(":in_toim_nimi", $nimi);
+
+hae_tulokset($statement);
+
+
+//laskujen mediaani
+echo '<h3>'.mb_convert_encoding("Laskujen mediaani", "utf8", "latin1").'</h3>';
+$statement = $pdo->prepare("
+SELECT x.toimittaja_nimi, x.SUMMA 'Summa' from (select summa, toimittaja_nimi 
+from (
+select lasku_id, 
+sum(tiliointisumma) 'summa', 
+tositepvm, 
+toimittaja_y_tunnus, 
+toimittaja_nimi, 
+hankintayksikko_tunnus, 
+hankintayksikko, 
+ylaorganisaatio_tunnus, 
+ylaorganisaatio, 
+sektori, 
+tuote_palveluryhma, 
+hankintakategoria 
+from hankinta where toimittaja_nimi = :in_toim_nimi group by lasku_id, tositepvm, 
+toimittaja_y_tunnus, 
+toimittaja_nimi, 
+hankintayksikko_tunnus, 
+hankintayksikko, 
+ylaorganisaatio_tunnus, 
+ylaorganisaatio, 
+sektori, 
+tuote_palveluryhma, 
+hankintakategoria ) X order by 1
+) x, (select summa 
+from (
+select lasku_id, 
+sum(tiliointisumma) 'summa', 
+tositepvm, 
+toimittaja_y_tunnus, 
+toimittaja_nimi, 
+hankintayksikko_tunnus, 
+hankintayksikko, 
+ylaorganisaatio_tunnus, 
+ylaorganisaatio, 
+sektori, 
+tuote_palveluryhma, 
+hankintakategoria 
+from hankinta where toimittaja_nimi = :in_toim_nimi group by lasku_id, tositepvm, 
+toimittaja_y_tunnus, 
+toimittaja_nimi, 
+hankintayksikko_tunnus, 
+hankintayksikko, 
+ylaorganisaatio_tunnus, 
+ylaorganisaatio, 
+sektori, 
+tuote_palveluryhma, 
+hankintakategoria ) X order by 1
+) y
+GROUP BY x.SUMMA
+HAVING SUM(SIGN(1-SIGN(y.SUMMA-x.SUMMA)))/COUNT(*) > .5
+LIMIT 1");
+$statement->bindValue(":in_toim_nimi", $nimi);
+hae_tulokset($statement);
+
+/*
+//Moodi, ainoastaan yleisin luku
+echo '<h3>'.mb_convert_encoding("Laskujen moodi", "utf8", "latin1").'</h3>';
+$statement = $pdo->prepare("
+select summa, frequency from(SELECT X.summa, COUNT(X.summa) AS frequency
+    FROM (select lasku_id, 
+sum(tiliointisumma) 'Summa', 
+toimittaja_y_tunnus, 
+toimittaja_nimi
+from hankinta where toimittaja_nimi = :in_toim_nimi group by lasku_id, 
+toimittaja_y_tunnus, 
+toimittaja_nimi) X
+     GROUP BY summa 
+     ORDER BY frequency DESC limit 1) T1;");
+$statement->bindValue(":in_toim_nimi", $nimi);
+hae_tulokset($statement);
+*/
+//kaikkien lukujen moodit
+echo '<h3>'.mb_convert_encoding("Laskujen moodi", "utf8", "latin1").'</h3>';
+$statement = $pdo->prepare("
+SELECT X.summa 'Summa', COUNT(X.summa) AS frequency
+    FROM (select lasku_id, 
+sum(tiliointisumma) 'Summa', 
+toimittaja_y_tunnus, 
+toimittaja_nimi
+from hankinta where toimittaja_nimi = :in_toim_nimi group by lasku_id, 
+toimittaja_y_tunnus, 
+toimittaja_nimi) X
+     GROUP BY summa 
+     ORDER BY frequency DESC
+");
+$statement->bindValue(":in_toim_nimi", $nimi);
+hae_tulokset($statement);
+
 }
 $pdo = null; //close connection
 echo '
